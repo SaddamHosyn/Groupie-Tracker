@@ -9,15 +9,17 @@ import (
 func main() {
 
 	var err error
-	homeTmpl, err = template.ParseFiles("index.html")
+	homeTmpl, err = template.ParseFiles("static/index.html")
 	if err != nil {
 		log.Fatal("Error parsing template:", err)
 	}
 
-	artistTmpl, err = template.ParseFiles("artist.html")
+	artistTmpl, err = template.ParseFiles("static/artist.html")
 	if err != nil {
 		log.Fatal("Error parsing template:", err)
 	}
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/artist/", artistHandler)

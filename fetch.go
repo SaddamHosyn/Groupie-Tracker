@@ -219,6 +219,18 @@ func fetchArtistData(id int) (Artist, []string, []string, map[string][]string, e
 	return selectedArtist, associatedLocations, associatedDates, associatedRelations, nil
 }
 
+var tpl *template.Template
+
+func renderError(w http.ResponseWriter, status int, errorTemplate string) {
+	w.WriteHeader(status)
+	err := tpl.ExecuteTemplate(w, errorTemplate, nil)
+	if err != nil {
+		http.Error(w, http.StatusText(status), status)
+	}
+}
+
+
+
 func artistHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the artist ID from URL
 	// e.g. /artist/1
