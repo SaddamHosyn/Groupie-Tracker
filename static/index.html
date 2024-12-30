@@ -1,30 +1,32 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Groupie Tracker</title>
-    <link rel="stylesheet" href="/static/index.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/static/index.css" />
+    <link
+      rel="icon"
+      href="static/image/favi.png"
+      type="image/png"
+      sizes="16x16"
+    />
+  </head>
+  <body>
     <h1>Groupie Tracker</h1>
-
-    <label for="artist-select">Choose an artist:</label>
+    <label for="artist-select">Please Click on an Artist</label>
 
     <div id="artist-container">
-        {{range .}}
-        <a href="/artist/{{.ID}}" class="artist-card" data-id="{{.ID}}">
-            <img src="{{.Image}}" alt="{{.Name}}">
-            <h2>{{.Name}}</h2> 
+      {{range .}}
+      <a href="/artist/{{.ID}}" class="artist-card" data-id="{{.ID}}">
+        <img src="{{.Image}}" alt="{{.Name}}" />
+        <h2>{{.Name}}</h2>
 
-            <p><strong>Members:</strong> {{range .Members}}{{.}}, {{end}}</p>
-            <p><strong>Creation Date:</strong> {{.CreationDate}}</p>
-            <p><strong>First Album:</strong> {{.FirstAlbum}}</p>
-        </a>
-        {{end}}
+        <div><strong>Members:</strong> {{range .Members}}{{.}}, {{end}}</div>
+        <div><strong>Creation Date:</strong> {{.CreationDate}}</div>
+        <div><strong>First Album:</strong> {{.FirstAlbum}}</div>
+      </a>
+      {{end}}
     </div>
-
-
-</body>
+  </body>
 </html>
-

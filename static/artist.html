@@ -8,19 +8,22 @@
 </head>
 <body>
 
+    <div>
+    <nav><a href="/">Go Back</a></nav>
+    </div>
 
     <div id="artist-container">
         <div class="artist-card" data-id="{{.ID}}">
             <img src="{{.Image}}" alt="{{.Name}}">
             <h1>{{.Name}}</h1> 
         
-            <p><strong>Members:</strong><br> {{range .Members}}{{.}}<br>{{end}}</p>
-            <p><strong>Creation Date:</strong><br> {{.CreationDate}}</p>
-            <p><strong>First Album:</strong><br> {{.FirstAlbum}}</p>
+            <div><strong>Members:</strong><br> {{range .Members}}{{.}}<br>{{end}}</div>
+            <div><strong>Creation Date:</strong><br> {{.CreationDate}}</div>
+            <div><strong>First Album:</strong><br> {{.FirstAlbum}}</div>
 
-            <p><strong>Locations:</strong><br> {{range .Locations}}{{.}}, {{end}}</p>
-            <p><strong>Dates:</strong><br> {{range .Dates}}{{.}}, {{end}}</p>
-            <p><strong>Relations:</strong><br> {{range .Relations}}{{.}}, {{end}}</p>
+            <div><strong>Locations:</strong><br> {{range .Locations}}{{.}}, {{end}}</div>
+            <div><strong>Dates:</strong><br> {{range .Dates}}{{.}}, {{end}}</div>
+            <div><strong>Relations:</strong><br> {{range .Relations}}{{.}}, {{end}}</div>
         
     </div>
     

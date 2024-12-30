@@ -2,20 +2,24 @@ body {
     font-family: Tahoma, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #fff5fc;
+    background-color: #000;
 }
 
 h1 {
     text-align: center;
     margin-top: 20px;
+    color: #29d331;
+    font-weight: 700; 
+    font-size: 3.25vw;
 }
 
 label {
     display: block;
     text-align: center; 
     margin: 0 auto; 
-    font-size: 1.2rem; 
+    font-size: 2.5rem; 
     margin-top: 20px; 
+    color: #fff;
 }
 
 select {
@@ -33,8 +37,8 @@ select {
     margin-top: 20px;
 }
 
-.artist-card {
-    background-color: #000000;
+.artist-card:nth-child(even) {
+    background-color: #eeff35;
     width: 300px;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -44,6 +48,46 @@ select {
     transition: transform 0.3s;
     text-decoration: none;
 }
+
+.artist-card:nth-child(odd) {
+    background-color: #b83dff;
+    width: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s;
+    text-decoration: none;
+}
+
+.artist-card:nth-child(even) h2 {
+    font-size: 2rem;
+    margin: 10px 0;
+    color: #000;
+
+}
+.artist-card:nth-child(even) p {
+    font-size: 0.75rem;
+    color: #000;
+    margin: 5px 0;
+    text-decoration: none;
+}
+
+.artist-card:nth-child(odd) h2 {
+    font-size: 2rem;
+    margin: 10px 0;
+    color: #000;
+
+}
+.artist-card:nth-child(odd) p {
+    font-size: 0.75rem;
+    color: #000;
+    margin: 5px 0;
+    text-decoration: none;
+}
+
+
 
 .artist-card:hover {
     transform: scale(1.05);
@@ -55,19 +99,6 @@ select {
     height: 200px;
     object-fit: cover;
     border-radius: 8px;
-}
-
-.artist-card h2 {
-    font-size: 2rem;
-    margin: 10px 0;
-    color: #ffff;
-}
-
-.artist-card p {
-    font-size: 0.75rem;
-    color: #fff;
-    margin: 5px 0;
-    text-decoration: none;
 }
 
 select {

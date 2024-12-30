@@ -2,12 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"text/template"
 )
+
+// 	apiURL            = "https://groupietrackers.herokuapp.com/api"
 
 const (
 	apiURL            = "https://groupietrackers.herokuapp.com/api"
@@ -17,7 +17,9 @@ const (
 	relationsEndpoint = apiURL + "/relation"
 )
 
-// Artist data structure remains the same
+var fetchError bool
+
+// Type definitions
 type Artist struct {
 	ID           int      `json:"id"`
 	Image        string   `json:"image"`
@@ -27,7 +29,6 @@ type Artist struct {
 	FirstAlbum   string   `json:"firstAlbum"`
 }
 
-// Artist data structure remains the same
 type ArtistPageData struct {
 	ID           int      `json:"id"`
 	Image        string   `json:"image"`
@@ -58,14 +59,6 @@ type Dates struct {
 	Dates []string `json:"dates"`
 }
 
-/* type Relation struct {
-	Index []struct {
-		ID        int      `json:"id"`
-		Dates     []string `json:"dates"`
-		Locations []string `json:"locations"`
-	} `json:"index"`
-} */
-
 type Relation struct {
 	Index []struct {
 		ID             int                 `json:"id"`
@@ -73,15 +66,20 @@ type Relation struct {
 	} `json:"index"`
 }
 
+type ErrorResponse struct {
+	Code    int
+	Message string
+}
+
+// Global variables
 var (
-	homeTmpl   *template.Template
-	artistTmpl *template.Template
-	artists    []Artist
-	locations  []Location
-	dates      []Dates
-	relations  Relation
+	artists   []Artist
+	locations []Location
+	dates     []Dates
+	relations Relation
 )
 
+// Fetch functions
 func fetchArtists() error {
 	resp, err := http.Get(artistsEndpoint)
 	if err != nil {
@@ -131,14 +129,10 @@ func fetchDates() error {
 	if err != nil {
 		return err
 	}
-
-	// Use the wrapper struct to unmarshal the data
 	var apiResponse DatesAPIResponse
 	if err := json.Unmarshal(body, &apiResponse); err != nil {
 		return err
 	}
-
-	// Assign the fetched dates
 	dates = apiResponse.Index
 	log.Println("Dates fetched successfully")
 	return nil
@@ -162,26 +156,7 @@ func fetchRelations() error {
 	return nil
 }
 
-// Fetch All Data at Once
-func fetchAllData() {
-	if len(artists) == 0 {
-		if err := fetchArtists(); err != nil {
-			log.Fatal("Error fetching artists:", err)
-		}
-		if err := fetchLocations(); err != nil {
-			log.Fatal("Error fetching locations:", err)
-		}
-		if err := fetchDates(); err != nil {
-			log.Fatal("Error fetching dates:", err)
-		}
-		if err := fetchRelations(); err != nil {
-			log.Fatal("Error fetching relations:", err)
-		}
-	}
-}
-
 func fetchArtistData(id int) (Artist, []string, []string, map[string][]string, error) {
-	// Fetch the artist by ID
 	var selectedArtist Artist
 	for _, artist := range artists {
 		if artist.ID == id {
@@ -190,10 +165,8 @@ func fetchArtistData(id int) (Artist, []string, []string, map[string][]string, e
 		}
 	}
 
-	// Fetch associated data (locations, dates, and relations)
 	var associatedLocations []string
 	var associatedDates []string
-	//var associatedRelations []string
 	var associatedRelations map[string][]string
 
 	for _, location := range locations {
@@ -210,8 +183,6 @@ func fetchArtistData(id int) (Artist, []string, []string, map[string][]string, e
 
 	for _, relation := range relations.Index {
 		if relation.ID == id {
-			//fmt.Println(relation)
-			//associatedRelations = append(associatedRelations, fmt.Sprintf("Locations: %v, Dates: %v", relation.Locations, relation.Dates))
 			associatedRelations = relation.DatesLocations
 		}
 	}
@@ -219,73 +190,45 @@ func fetchArtistData(id int) (Artist, []string, []string, map[string][]string, e
 	return selectedArtist, associatedLocations, associatedDates, associatedRelations, nil
 }
 
-var tpl *template.Template
-
-func renderError(w http.ResponseWriter, status int, errorTemplate string) {
-	w.WriteHeader(status)
-	err := tpl.ExecuteTemplate(w, errorTemplate, nil)
-	if err != nil {
-		http.Error(w, http.StatusText(status), status)
-	}
-}
-
-
-
-func artistHandler(w http.ResponseWriter, r *http.Request) {
-	// Get the artist ID from URL
-	// e.g. /artist/1
-
-	fetchAllData()
-
-	artistID := r.URL.Path[len("/artist/"):]
-	if artistID == "" {
-		http.Error(w, "Artist ID is required", http.StatusBadRequest)
-		return
-	}
-
-	id := 0
-	// Convert the artist ID from string to int
-	fmt.Sscanf(artistID, "%d", &id)
-
-	// Fetch the artist and related data
-	artist, locations, dates, relations, err := fetchArtistData(id)
-	if err != nil {
-		http.Error(w, "Failed to fetch artist data", http.StatusInternalServerError)
-		return
-	}
-
-	stringRelations := []string{}
-	for location, dates := range relations {
-		for _, date := range dates {
-			stringRelations = append(stringRelations, location+" "+date)
+func fetchAllData() error {
+	if len(artists) == 0 {
+		if err := fetchArtists(); err != nil {
+			fetchError = true
+			return err
+		}
+		if err := fetchLocations(); err != nil {
+			fetchError = true
+			return err
+		}
+		if err := fetchDates(); err != nil {
+			fetchError = true
+			return err
+		}
+		if err := fetchRelations(); err != nil {
+			fetchError = true
+			return err
 		}
 	}
-
-	APD := ArtistPageData{
-		ID:           artist.ID,
-		Image:        artist.Image,
-		Name:         artist.Name,
-		Members:      artist.Members,
-		CreationDate: artist.CreationDate,
-		FirstAlbum:   artist.FirstAlbum,
-		Locations:    locations,
-		Dates:        dates,
-		Relations:    stringRelations,
-	}
-
-
-	if err := artistTmpl.Execute(w, APD); err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		log.Println("Template render error:", err)
-	}
-
+	return nil
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	fetchAllData()
+func handleError(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 
-	if err := homeTmpl.Execute(w, artists); err != nil {
-		http.Error(w, "Failed to render template", http.StatusInternalServerError)
-		log.Println("Template render error:", err)
+	switch code {
+	case http.StatusBadRequest: // 400
+		if err := error400Tmpl.Execute(w, ErrorResponse{Code: code, Message: message}); err != nil {
+			http.Error(w, message, code)
+		}
+	case http.StatusNotFound: // 404
+		if err := error404Tmpl.Execute(w, ErrorResponse{Code: code, Message: message}); err != nil {
+			http.Error(w, message, code)
+		}
+	case http.StatusInternalServerError: // 500
+		if err := error500Tmpl.Execute(w, ErrorResponse{Code: code, Message: message}); err != nil {
+			http.Error(w, message, code)
+		}
+	default:
+		http.Error(w, message, code)
 	}
 }

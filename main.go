@@ -6,8 +6,17 @@ import (
 	"text/template"
 )
 
-func main() {
+var (
+	homeTmpl     *template.Template
+	artistTmpl   *template.Template
+	error400Tmpl *template.Template
+	error404Tmpl *template.Template
+	error500Tmpl *template.Template
+)
 
+
+
+func main() {
 	var err error
 	homeTmpl, err = template.ParseFiles("static/index.html")
 	if err != nil {
@@ -19,8 +28,22 @@ func main() {
 		log.Fatal("Error parsing template:", err)
 	}
 
-	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	error400Tmpl, err = template.ParseFiles("static/400.html")
+	if err != nil {
+		log.Fatal("Error parsing 400 template:", err)
+	}
 
+	error404Tmpl, err = template.ParseFiles("static/404.html")
+	if err != nil {
+		log.Fatal("Error parsing 404 template:", err)
+	}
+
+	error500Tmpl, err = template.ParseFiles("static/500.html")
+	if err != nil {
+		log.Fatal("Error parsing 500 template:", err)
+	}
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/artist/", artistHandler)
 
